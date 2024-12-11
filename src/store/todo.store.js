@@ -1,7 +1,7 @@
 import {Todo} from "../todos/models/todo.model";
 
 
-const Filters = {
+export const Filters = {
     All: 'All',
     Completed: 'Completed',
     Pending: 'Pending'
@@ -11,24 +11,33 @@ const state = {
     todos: [
         new Todo('Piedra del alma'),
         new Todo('Piedra del infinito'),
-        new Todo('Piedra del tiempo')
+        new Todo('Piedra del tiempo'),
+        new Todo('Piedra de la realidad')
     ],
     filter: Filters.All
 }
 
 const initStore = () => {
     console.log('initStore 🥑');
-    console.log(state)
+    loadStore()
 }
 const loadStore = () => {
-    throw new Error('Not implemented');
+    if( !localStorage.getItem('state')) return;
+
+    const {todos = [], filter = Filters.All } = JSON.parse(localStorage.getItem('state'));
+    state.todos = todos;
+    state.filter = filter;
+
+}
+
+const saveStateToLocalStorage = () => {
+    localStorage.setItem('state', JSON.stringify(state));
 }
 
 const getTodos = (filter = Filters.All) => {
     switch ( filter){
         case Filters.All:
             return [...state.todos]
-
 
         case Filters.Completed:
             return state.todos.filter(todo => todo.done )
@@ -49,17 +58,25 @@ const getTodos = (filter = Filters.All) => {
 
 const addTodo = (description) => {
     if (!description) throw new Error('Description is required');
-
     state.todos.push(new Todo(description));
+
+    saveStateToLocalStorage();
 }
 
 /**
  *
- * @param todoId
+ * @param  {String} todoId
  */
 
 const toggleTodo = (todoId) => {
-    throw new Error('Not implemented');
+
+    state.todos = state.todos.map ( todo => {
+        if (todo.id === todoId){
+            todo.done = !todo.done
+        }
+        return todo;
+    })
+    saveStateToLocalStorage();
 }
 
 const deleteTodo = (todoId) => {
@@ -72,7 +89,7 @@ const deleteCompleted = () => {
 
 /*+
 *
-* @param {String} newFilter
+* @param {Filters} newFilter
  */
 
 
@@ -83,7 +100,7 @@ const setFilter =( newFilter = Filters.All) => {
 
 
 const getCurrentFilter = () => {
-    return state.filter;
+    return state.filter
 }
 
 export default {
